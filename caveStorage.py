@@ -27,10 +27,11 @@ class Collection:
     def __init__(self):
         self.id    = id(self)
         self.caves = list()
+        self.archive      = Storage()
         self.bottles_list = list()
 
     def createCave(self):
-        c = Cave(self)
+        c = Cave()
         self.caves.append(c)
         return c
 
@@ -96,7 +97,7 @@ class Shelf:
         self.positions   .append(position)
         bottle.setPosition(position)
 
-    def getBottle(self, position):
+    def getBottleByPosition(self, position):
         id = None
         for i, elt in enumerate(self.positions):
             if position == elt:
@@ -111,16 +112,7 @@ class Shelf:
 class Storage():
     def __init__(self):
         self.id         = id(self)
-
-class Cave():
-    def __init__(self, collection, shelves=((1, 2, 5), (2, 3, 5), (2, 3, 5), (2, 3, 5))):
-        self.id         = id(self)
-        self.shelves    = [Shelf(i, *x) for i, x in enumerate(shelves)]
-        self.capacite   = sum([e.getCapacite() for e in self.shelves])
-        self.collection = collection
-        
-    def getCapacite(self):
-        return self.capacite
+        self.shelves    = [Shelf(0, 0, 0, 0)]
 
     def getRemplissage(self):
         return sum([e.getBottlesNumbers() for e in self.shelves])
@@ -129,17 +121,26 @@ class Cave():
         shelfId = position.shelf
         self.shelves[shelfId].addBottle(bottle, position)
 
-    def getBottle(self, position):
-        shelfId = position.shelf
-        id, _   = self.shelves[shelfId].getBottle(position)
-        return self.getBottleById(id)
-
     def removeBottle(self, position):
         shelfId = position.shelf
-        id, bottleId_shelf = self.shelves[shelfId].getBottle(position)
+        id, bottleId_shelf = self.shelves[shelfId].getBottleByPosition(position)
         self.shelves[shelfId].removeBottleByShelfID(bottleId_shelf)
         return id
 
+
+class Cave(Storage):
+    def __init__(self, shelves=((1, 2, 5), (2, 3, 5), (2, 3, 5), (2, 3, 5))):
+        super().__init__()
+        self.shelves    = [Shelf(i, *x) for i, x in enumerate(shelves)]
+        self.capacite   = sum([e.getCapacite() for e in self.shelves])
+        
+    def getCapacite(self):
+        return self.capacite
+
+    def getBottleByPosition(self, position):
+        shelfId = position.shelf
+        id, _   = self.shelves[shelfId].getBottleByPosition(position)
+        return self.getBottleById(id)
 
 def main():
 
