@@ -1,0 +1,1 @@
+APPNAME =  "Wine Manager"
